@@ -1,31 +1,22 @@
 import React from 'react';
-import { 
-  Heart, 
-  MapPin, 
-  Phone, 
-  Clock, 
-  ShieldCheck, 
-  FileText, 
-  MessageCircle, 
-  ArrowUp,
-  Lock
+import {
+  Heart,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  MessageCircle,
+  ArrowUp
 } from 'lucide-react';
 import { VET_DATA } from '../data/prescriptionTemplates';
 
-export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) {
+const CURRENT_YEAR = new Date().getFullYear();
+
+export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const whatsappUrl = `https://wa.me/55${VET_DATA.whatsapp.replace(/\D/g, '')}?text=Ol%C3%A1%2C%20Dra.%20Nilc%C3%A9ia!%20Gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20atendimento%20veterin%C3%A1rio.`;
-
-  const handleDashboardClick = () => {
-    if (currentUser) {
-      setCurrentView('dashboard');
-    } else {
-      setIsLoginOpen(true);
-    }
-  };
 
   return (
     <footer className="no-print" style={{
@@ -34,10 +25,10 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
       paddingTop: '50px',
       paddingBottom: '25px',
       borderTop: '3px solid var(--tiffany-500)',
-      position: 'relative'
+      position: 'relative',
+      zIndex: 5
     }}>
       <div className="container">
-        
         {/* Main Footer Grid */}
         <div style={{
           display: 'grid',
@@ -45,7 +36,6 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
           gap: '36px',
           marginBottom: '40px'
         }}>
-          
           {/* Coluna 1: Sobre a Médica */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
@@ -80,7 +70,7 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
                   letterSpacing: '0.6px',
                   textTransform: 'uppercase'
                 }}>
-                  CRMV-SC 16442
+                  {VET_DATA.crmv}
                 </span>
               </div>
             </div>
@@ -106,7 +96,7 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.85rem' }}>
               <div>
-                <strong style={{ color: '#f1f5f9', display: 'block' }}>Consultório / Atendimento:</strong>
+                <strong style={{ color: '#f1f5f9', display: 'block' }}>Local de Atendimento:</strong>
                 <span>{VET_DATA.address}</span>
                 <div style={{ color: '#94a3b8' }}>Bairro {VET_DATA.neighborhood} • {VET_DATA.city} - {VET_DATA.state}</div>
                 <div style={{ color: 'var(--tiffany-400)', fontWeight: 600 }}>CEP {VET_DATA.cep}</div>
@@ -143,39 +133,6 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
               </li>
             </ul>
           </div>
-
-          {/* Coluna 4: Acesso Restrito da Médica */}
-          <div>
-            <h4 style={{ color: '#ffffff', fontSize: '0.96rem', fontWeight: 700, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Lock size={16} color="var(--tiffany-400)" />
-              Área Restrita
-            </h4>
-
-            <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '12px' }}>
-              Acesso exclusivo para emissão e impressão de receituários veterinários normatizados.
-            </p>
-
-            <button
-              onClick={handleDashboardClick}
-              style={{
-                background: 'rgba(10, 186, 181, 0.15)',
-                border: '1px solid var(--tiffany-500)',
-                color: 'var(--tiffany-300)',
-                padding: '8px 14px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '0.82rem',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              {currentUser ? <FileText size={14} /> : <Lock size={14} />}
-              <span>{currentUser ? 'Acessar Painel de Receituário' : 'Entrar na Área de Receituário'}</span>
-            </button>
-          </div>
-
         </div>
 
         {/* Bottom Bar: Copyright & Compliance */}
@@ -191,15 +148,16 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
           color: '#64748b'
         }}>
           <div>
-            © {new Date().getFullYear()} Dra. Nilcéia Silva • Médica Veterinária (CRMV-SC 16442). Todos os direitos reservados.
+            © {CURRENT_YEAR} Dra. Nilcéia Silva • Médica Veterinária (CRMV-SC 16442). Todos os direitos reservados.
             <div style={{ marginTop: '2px', color: '#94a3b8' }}>
               {VET_DATA.address} - Bairro Coral, Lages - SC, CEP 88508-500 • Tel: {VET_DATA.phone}
             </div>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span>Conforme Resoluções CFMV / CRMV-SC & RDC Anvisa nº 1.000/2025</span>
+            <span>Conforme Resoluções CFMV / CRMV-SC &amp; RDC Anvisa nº 1.000/2025</span>
             <button
+              type="button"
               onClick={scrollToTop}
               title="Voltar ao Topo"
               style={{
@@ -219,7 +177,6 @@ export default function Footer({ setCurrentView, currentUser, setIsLoginOpen }) 
             </button>
           </div>
         </div>
-
       </div>
     </footer>
   );

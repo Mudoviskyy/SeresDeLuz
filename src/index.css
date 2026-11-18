@@ -209,6 +209,19 @@ a:hover {
   animation: pulseSubtle 3s infinite ease-in-out;
 }
 
+/* Sticky header anchor offset & responsive landing grids */
+section[id] {
+  scroll-margin-top: 112px;
+}
+
+@media (max-width: 900px) {
+  .hero-grid,
+  .contact-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+}
+
 /* =========================================================================
    STRICT A4 PRINT STYLING & BROWSER HEADER/FOOTER SUPPRESSION
    @page { size: A4 portrait; margin: 0; } REMOVES BROWSER DATE, URL, HEADERS

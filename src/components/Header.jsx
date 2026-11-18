@@ -1,13 +1,11 @@
 import React from 'react';
-import { 
-  Heart, 
-  Phone, 
-  MapPin, 
-  Clock, 
-  FileText, 
-  MessageCircle, 
+import {
+  Heart,
+  Phone,
+  MapPin,
+  Clock,
+  MessageCircle,
   Sparkles,
-  ShieldCheck,
   Lock,
   LogOut,
   UserCheck
@@ -22,6 +20,14 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
       setCurrentView('dashboard');
     } else {
       setIsLoginOpen(true);
+    }
+  };
+
+  const handleHomeClick = () => {
+    if (currentView === 'landing') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setCurrentView('landing');
     }
   };
 
@@ -48,11 +54,8 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <span className="badge-pill badge-tiffany" style={{ fontSize: '0.75rem', padding: '2px 8px' }}>
-              <ShieldCheck size={12} /> {VET_DATA.crmv}
-            </span>
-            <a 
-              href={`tel:${VET_DATA.phone.replace(/\D/g, '')}`} 
+            <a
+              href={`tel:${VET_DATA.phone.replace(/\D/g, '')}`}
               style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#fff', fontWeight: 600 }}
             >
               <Phone size={13} color="var(--tiffany-400)" /> {VET_DATA.phone}
@@ -74,11 +77,13 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
           alignItems: 'center',
           paddingTop: '10px',
           paddingBottom: '10px',
-          minHeight: '68px'
+          minHeight: '68px',
+          flexWrap: 'wrap',
+          gap: '12px'
         }}>
           {/* Logo & Identificação Pessoal da Médica */}
-          <div 
-            onClick={() => setCurrentView('landing')}
+          <div
+            onClick={handleHomeClick}
             style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
           >
             <div style={{
@@ -98,27 +103,17 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
             </div>
 
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  fontSize: '1.25rem',
-                  fontWeight: '800',
-                  letterSpacing: '-0.4px',
-                  color: 'var(--slate-900)',
-                  fontFamily: 'var(--font-display)'
-                }}>
-                  Dra. Nilcéia Silva
-                </span>
-                <span style={{
-                  background: 'var(--tiffany-100)',
-                  color: 'var(--tiffany-800)',
-                  padding: '2px 7px',
-                  borderRadius: '4px',
-                  fontSize: '0.68rem',
-                  fontWeight: 700
-                }}>
-                  CRMV-SC 16442
-                </span>
-              </div>
+              <span style={{
+                fontSize: '1.25rem',
+                fontWeight: '800',
+                letterSpacing: '-0.4px',
+                color: 'var(--slate-900)',
+                fontFamily: 'var(--font-display)',
+                display: 'block',
+                lineHeight: 1.15
+              }}>
+                Dra. Nilcéia Silva
+              </span>
               <div style={{ fontSize: '0.76rem', color: 'var(--slate-600)' }}>
                 Medicina Veterinária • Cães e Gatos
               </div>
@@ -126,9 +121,10 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
           </div>
 
           {/* Menu Links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
             <button
-              onClick={() => setCurrentView('landing')}
+              type="button"
+              onClick={handleHomeClick}
               style={{
                 background: 'none',
                 border: 'none',
@@ -160,6 +156,7 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
 
             {/* Switch to Prescription Tool (Dashboard / Login) */}
             <button
+              type="button"
               onClick={handleDashboardClick}
               className="btn"
               style={{
@@ -171,12 +168,13 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
               }}
             >
               {currentUser ? <UserCheck size={15} /> : <Lock size={14} />}
-              <span>{currentUser ? 'Painel de Receituário' : 'Acesso Restrito: Receituário'}</span>
+              <span>{currentUser ? 'Painel de Receituário' : 'Acessar Conta'}</span>
             </button>
 
             {/* If logged in: Logout button */}
             {currentUser && (
               <button
+                type="button"
                 onClick={handleLogout}
                 style={{
                   background: 'none',
@@ -190,7 +188,7 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
                   alignItems: 'center',
                   gap: '4px'
                 }}
-                title="Sair do painel restrito"
+                title="Sair da conta"
               >
                 <LogOut size={13} /> Sair
               </button>
