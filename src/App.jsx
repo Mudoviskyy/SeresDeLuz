@@ -5,17 +5,53 @@ import PrescriptionDashboard from './components/PrescriptionDashboard';
 import Footer from './components/Footer';
 import LoginModal from './components/LoginModal';
 
+function getStoredUser() {
+  try {
+    const saved = localStorage.getItem('seres_user');
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
-  const [currentView, setCurrentView] = useState('landing');
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('seres_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
+  const [currentUser, setCurrentUser] = useState(getStoredUser);
+  const [currentView, setCurrentView] = useState(() => {
+    const isAdminHash = window.location.hash === '#admin';
+    return isAdminHash && getStoredUser() ? 'dashboard' : 'landing';
   });
+  const [isLoginOpen, setIsLoginOpen] = useState(() => {
+    return window.location.hash === '#admin' && !getStoredUser();
+  });
+
+  // Keep URL hash synced with /#admin when on logged-in account area
+  useEffect(() => {
+    if (currentView === 'dashboard') {
+      if (window.location.hash !== '#admin') {
+        window.history.replaceState(null, '', '#admin');
+      }
+    } else if (window.location.hash === '#admin') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  }, [currentView]);
+
+  // Listen to manual hash navigation (e.g. visiting /#admin or pressing back)
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === '#admin') {
+        if (currentUser) {
+          setCurrentView('dashboard');
+        } else {
+          setIsLoginOpen(true);
+        }
+      } else if (currentView === 'dashboard') {
+        setCurrentView('landing');
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [currentUser, currentView]);
 
   // Handle successful login
   const handleLoginSuccess = (user) => {
@@ -29,6 +65,9 @@ export default function App() {
     localStorage.removeItem('seres_user');
     setCurrentUser(null);
     setCurrentView('landing');
+    if (window.location.hash === '#admin') {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
   };
 
   // Intercept view change to dashboard if not logged in
@@ -48,8 +87,8 @@ export default function App() {
   return (
     <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Universal Header with Navigation & Login Gate */}
-      <Header 
-        currentView={currentView} 
+      <Header
+        currentView={currentView}
         setCurrentView={handleSetView}
         currentUser={currentUser}
         setIsLoginOpen={setIsLoginOpen}
@@ -59,31 +98,27 @@ export default function App() {
       {/* Main Content Area */}
       <main style={{ flex: 1 }}>
         {currentView === 'landing' ? (
-          <LandingPage 
-            setCurrentView={handleSetView} 
-            currentUser={currentUser}
-            setIsLoginOpen={setIsLoginOpen}
-          />
+          <LandingPage />
         ) : (
-          <PrescriptionDashboard 
+          <PrescriptionDashboard
             setCurrentView={handleSetView}
-            currentUser={currentUser}
           />
         )}
       </main>
 
       {/* Footer with Contact & Legal */}
-      <Footer 
-        setCurrentView={handleSetView} 
-        currentUser={currentUser}
-        setIsLoginOpen={setIsLoginOpen}
-      />
+      <Footer />
 
       {/* Login Modal for Dashboard Access */}
-      <LoginModal 
-        isOpen={isLoginOpen} 
-        onClose={() => setIsLoginOpen(false)} 
-        onLoginSuccess={handleLoginSuccess} 
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => {
+          setIsLoginOpen(false);
+          if (window.location.hash === '#admin' && !currentUser) {
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
+          }
+        }}
+        onLoginSuccess={handleLoginSuccess}
       />
     </div>
   );

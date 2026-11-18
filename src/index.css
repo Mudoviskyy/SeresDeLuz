@@ -222,6 +222,12 @@ section[id] {
   }
 }
 
+@media (max-width: 1080px) {
+  .split-view-container {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* =========================================================================
    STRICT A4 PRINT STYLING & BROWSER HEADER/FOOTER SUPPRESSION
    @page { size: A4 portrait; margin: 0; } REMOVES BROWSER DATE, URL, HEADERS
@@ -255,6 +261,13 @@ section[id] {
     height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
+  }
+
+  .preview-tray {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
   }
 
   .prescription-sheet {

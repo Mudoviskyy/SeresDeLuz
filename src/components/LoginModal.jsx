@@ -60,8 +60,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(15, 23, 42, 0.7)',
-      backdropFilter: 'blur(6px)',
+      background: 'rgba(15, 23, 42, 0.68)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -218,7 +217,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
           }}>
             <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '2px' }}>
               <ShieldCheck size={14} color="var(--tiffany-600)" />
-              Credenciais Configuradas no SQLite:
+              Dados de Acesso da Médica:
             </div>
             <div>Usuário: <code>dra.nilceia</code> | Senha: <code>16442</code></div>
           </div>
