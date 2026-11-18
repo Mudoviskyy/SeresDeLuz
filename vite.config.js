@@ -1,12 +1,21 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import db from './src/server/db.js';
 
-// Custom Vite Plugin for SQLite Backend API
-function sqliteApiPlugin() {
+// Custom Vite Plugin for SQLite Backend API (only loaded in dev mode)
+async function sqliteApiPlugin() {
+  let db = null;
+  try {
+    const mod = await import('./src/server/db.js');
+    db = mod.default;
+  } catch (err) {
+    console.warn('SQLite backend skipped in current environment:', err.message);
+  }
+
   return {
     name: 'vite-sqlite-api',
+    apply: 'serve', // only execute in dev server (vite dev)
     configureServer(server) {
+      if (!db) return;
       server.middlewares.use(async (req, res, next) => {
         if (!req.url.startsWith('/api/')) {
           return next();
