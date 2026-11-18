@@ -1,0 +1,276 @@
+/* =========================================================================
+   Seres de Luz • Dra. Nilcéia Silva (CRMV-SC 16442) - Design System
+   Paleta Base: Azul Tiffany Primário (#0ABAB5) com tons neutros Slate e Amber
+   ========================================================================= */
+
+:root {
+  /* Tiffany Blue Core Palette */
+  --tiffany-50:  #f0fbfb;
+  --tiffany-100: #dcf6f5;
+  --tiffany-200: #b9eeec;
+  --tiffany-300: #85e0de;
+  --tiffany-400: #49cbca;
+  --tiffany-500: #0ABAB5; /* Core Brand Tiffany */
+  --tiffany-600: #089b97;
+  --tiffany-700: #0b7c79;
+  --tiffany-800: #0e6260;
+  --tiffany-900: #105150;
+  --tiffany-950: #052f2f;
+
+  /* Neutrals (Slate Medical Clean) */
+  --slate-50:  #f8fafc;
+  --slate-100: #f1f5f9;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --slate-900: #0f172a;
+
+  /* Accents */
+  --amber-400: #fbbf24;
+  --amber-500: #f59e0b;
+  --amber-600: #d97706;
+  --rose-500:  #f43f5e;
+  --emerald-500: #10b981;
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+
+  /* UI Tokens */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px -1px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 12px 24px -4px rgba(15, 23, 42, 0.1), 0 4px 8px -2px rgba(15, 23, 42, 0.05);
+  --shadow-xl: 0 20px 35px -5px rgba(10, 186, 181, 0.15), 0 8px 12px -4px rgba(15, 23, 42, 0.06);
+  --border-subtle: rgba(10, 186, 181, 0.18);
+}
+
+/* Base Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #fbfdfd;
+  color: var(--slate-800);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--slate-900);
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--tiffany-600);
+}
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Utility Gradients & Highlights */
+.text-gradient {
+  background: linear-gradient(135deg, var(--tiffany-600) 0%, var(--tiffany-800) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Cards */
+.card {
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--tiffany-300);
+}
+
+/* Badges */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.badge-tiffany {
+  background: var(--tiffany-100);
+  color: var(--tiffany-800);
+  border: 1px solid var(--tiffany-300);
+}
+
+.badge-amber {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.22s ease-in-out;
+  border: none;
+  font-size: 0.95rem;
+}
+
+.btn-primary {
+  background: var(--tiffany-500);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(10, 186, 181, 0.35);
+}
+.btn-primary:hover {
+  background: var(--tiffany-600);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(10, 186, 181, 0.45);
+}
+
+.btn-secondary {
+  background: #ffffff;
+  color: var(--tiffany-700);
+  border: 1px solid var(--tiffany-300);
+}
+.btn-secondary:hover {
+  background: var(--tiffany-50);
+  border-color: var(--tiffany-500);
+}
+
+.btn-whatsapp {
+  background: #25d366;
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+}
+.btn-whatsapp:hover {
+  background: #20ba5a;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+}
+
+/* Animations */
+@keyframes pulseSubtle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.92; }
+}
+
+.pulse-badge {
+  animation: pulseSubtle 3s infinite ease-in-out;
+}
+
+/* =========================================================================
+   STRICT A4 PRINT STYLING & BROWSER HEADER/FOOTER SUPPRESSION
+   @page { size: A4 portrait; margin: 0; } REMOVES BROWSER DATE, URL, HEADERS
+   ========================================================================= */
+
+@page {
+  size: A4 portrait;
+  margin: 0 !important; /* SUPPRESSES CHROME/EDGE DEFAULT HEADER & FOOTER */
+}
+
+@media print {
+  html, body {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide everything except printable prescription */
+  header, footer, nav, .no-print, .dashboard-editor, .hero-section, .landing-page, .tabs-container {
+    display: none !important;
+  }
+
+  .print-area-wrapper {
+    display: block !important;
+    position: static !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .prescription-sheet {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 10mm 12mm 10mm 12mm !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    max-height: 297mm !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Keep watermark intact during print */
+  .watermark-overlay {
+    opacity: 0.05 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force background colors and borders to print accurately */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
