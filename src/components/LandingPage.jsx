@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Heart,
   ShieldCheck,
@@ -16,9 +16,9 @@ import {
   Thermometer
 } from 'lucide-react';
 import { VET_DATA } from '../data/prescriptionTemplates';
-import petHero1 from '../assets/pet-hero-1.jpg';
-import petHero2 from '../assets/pet-hero-2.jpg';
-import petHero3 from '../assets/pet-hero-3.jpg';
+import petHero1 from '../assets/pet-hero-1.webp';
+import petHero2 from '../assets/pet-hero-2.webp';
+import petHero3 from '../assets/pet-hero-3.webp';
 
 const HERO_PET_BACKDROPS = [
   { src: petHero1, alt: 'Cão e gato tranquilos em ambiente claro e acolhedor' },
@@ -115,68 +115,43 @@ const CLINICAL_SERVICES = [
 
 export default function LandingPage() {
   const [activeSpeciesTab, setActiveSpeciesTab] = useState('both'); // 'both', 'dogs', 'cats'
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [activeBackdrop, setActiveBackdrop] = useState(0);
+
+  const heroRef = useRef(null);
+  const sobreRef = useRef(null);
+  const especialidadesRef = useRef(null);
+  const localizacaoRef = useRef(null);
 
   const whatsappGeneralUrl = `https://wa.me/55${VET_DATA.whatsapp.replace(/\D/g, '')}?text=Ol%C3%A1%2C%20Dra.%20Nilc%C3%A9ia!%20Gostaria%20de%20agendar%20uma%20consulta%20para%20o%20meu%20pet.`;
 
-  // Track scroll progress so the 3 background pet photos transition behind the page content
+  // Switch between the 3 background pet images via IntersectionObserver (zero scroll jank)
   useEffect(() => {
-    let frameId = null;
+    const sections = [
+      { el: heroRef.current, idx: 0 },
+      { el: sobreRef.current, idx: 1 },
+      { el: especialidadesRef.current, idx: 2 },
+      { el: localizacaoRef.current, idx: 2 }
+    ].filter((item) => item.el);
 
-    const updateProgress = () => {
-      const scrollTop = window.scrollY || window.pageYOffset || 0;
-      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      setScrollProgress(Math.min(1, Math.max(0, scrollTop / maxScroll)));
-      frameId = null;
-    };
+    if (!sections.length || typeof IntersectionObserver === 'undefined') return;
 
-    const handleScroll = () => {
-      if (frameId === null) {
-        frameId = window.requestAnimationFrame(updateProgress);
-      }
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const targetIdx = Number(entry.target.getAttribute('data-backdrop-idx'));
+            if (!Number.isNaN(targetIdx)) {
+              setActiveBackdrop(targetIdx);
+            }
+          }
+        }
+      },
+      { rootMargin: '-35% 0px -35% 0px', threshold: 0.01 }
+    );
 
-    updateProgress();
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-      if (frameId !== null) window.cancelAnimationFrame(frameId);
-    };
+    sections.forEach(({ el }) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
-
-  // Compute opacity and subtle parallax offset for each of the 3 pet backdrop images
-  const getBackdropStyle = (index) => {
-    let opacity = 0;
-    if (index === 0) {
-      opacity = scrollProgress < 0.35 ? 1 : Math.max(0, 1 - (scrollProgress - 0.35) / 0.2);
-    } else if (index === 1) {
-      if (scrollProgress >= 0.22 && scrollProgress <= 0.78) {
-        const fadeIn = Math.min(1, (scrollProgress - 0.22) / 0.18);
-        const fadeOut = scrollProgress > 0.62 ? Math.max(0, 1 - (scrollProgress - 0.62) / 0.16) : 1;
-        opacity = Math.min(fadeIn, fadeOut);
-      }
-    } else if (index === 2) {
-      opacity = scrollProgress > 0.56 ? Math.min(1, (scrollProgress - 0.56) / 0.2) : 0;
-    }
-
-    const translateY = (scrollProgress - index * 0.35) * -28;
-    const scale = 1.04 + opacity * 0.03;
-
-    return {
-      position: 'absolute',
-      inset: 0,
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      objectPosition: 'center center',
-      opacity: opacity * 0.42,
-      transform: `translate3d(0, ${translateY}px, 0) scale(${scale})`,
-      transition: 'opacity 0.25s ease-out',
-      willChange: 'opacity, transform'
-    };
-  };
 
   const visibleServices = CLINICAL_SERVICES.filter(
     (service) => activeSpeciesTab === 'both' || service.species.includes(activeSpeciesTab)
@@ -185,7 +160,7 @@ export default function LandingPage() {
   return (
     <div className="landing-page" style={{ position: 'relative' }}>
       {/* ========================================================
-          STICKY PET BACKDROP (3 IMAGENS QUE APARECEM ATRÁS AO ROLAR)
+          STICKY PET BACKDROP (3 IMAGENS LEVES QUE TROCAM AO ROLAR)
          ======================================================== */}
       <div
         aria-hidden="true"
@@ -197,7 +172,7 @@ export default function LandingPage() {
           overflow: 'hidden',
           zIndex: 0,
           pointerEvents: 'none',
-          background: 'linear-gradient(155deg, #eefbfb 0%, #ffffff 55%, #e2f7f6 100%)'
+          background: '#eefbfb'
         }}
       >
         {HERO_PET_BACKDROPS.map((pet, idx) => (
@@ -205,26 +180,41 @@ export default function LandingPage() {
             key={pet.src}
             src={pet.src}
             alt=""
-            style={getBackdropStyle(idx)}
+            decoding="async"
+            loading={idx === 0 ? 'eager' : 'lazy'}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center center',
+              opacity: activeBackdrop === idx ? 0.38 : 0,
+              transition: 'opacity 0.6s ease-in-out'
+            }}
           />
         ))}
-        {/* Soft translucent Tiffany veil so foreground text stays crisp and legible */}
+        {/* Soft Tiffany gradient veil for crisp text readability without GPU blur cost */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          background: 'linear-gradient(180deg, rgba(244, 252, 252, 0.52) 0%, rgba(255, 255, 255, 0.64) 55%, rgba(240, 251, 251, 0.72) 100%)'
+          background: 'linear-gradient(180deg, rgba(244, 252, 252, 0.55) 0%, rgba(255, 255, 255, 0.68) 55%, rgba(240, 251, 251, 0.74) 100%)'
         }} />
       </div>
 
       {/* ========================================================
           1. HERO SECTION: APRESENTAÇÃO & PERFIL DA DRA. NILCÉIA
          ======================================================== */}
-      <section style={{
-        padding: '62px 0 72px 0',
-        position: 'relative',
-        zIndex: 2,
-        borderBottom: '1px solid var(--border-subtle)'
-      }}>
+      <section
+        ref={heroRef}
+        data-backdrop-idx="0"
+        style={{
+          padding: '62px 0 72px 0',
+          position: 'relative',
+          zIndex: 2,
+          borderBottom: '1px solid var(--border-subtle)'
+        }}
+      >
         <div className="container" style={{ position: 'relative', zIndex: 1 }}>
           <div style={{
             display: 'grid',
@@ -245,8 +235,7 @@ export default function LandingPage() {
                 fontSize: '2.55rem',
                 lineHeight: 1.15,
                 color: 'var(--slate-900)',
-                marginBottom: '16px',
-                textShadow: '0 1px 14px rgba(255, 255, 255, 0.85)'
+                marginBottom: '16px'
               }}>
                 Cuidando de <span className="text-gradient">cães e gatos</span> com dedicação, ciência e carinho.
               </h1>
@@ -257,16 +246,15 @@ export default function LandingPage() {
                 color: 'var(--slate-800)',
                 marginBottom: '26px',
                 maxWidth: '560px',
-                background: 'rgba(255, 255, 255, 0.72)',
-                backdropFilter: 'blur(6px)',
+                background: 'rgba(255, 255, 255, 0.84)',
                 padding: '14px 16px',
                 borderRadius: 'var(--radius-md)',
-                border: '1px solid rgba(10, 186, 181, 0.16)'
+                border: '1px solid rgba(10, 186, 181, 0.18)'
               }}>
                 Olá! Sou a <strong>Dra. Nilcéia Silva</strong>. Minha missão é oferecer um atendimento médico veterinário individualizado, calmo e humanizado, respeitando a sensibilidade única de cada cão e gato em Lages e região.
               </p>
 
-              {/* Highlights Micro-cards (sem duplicar telefone/endereço já exibidos no topo e card lateral) */}
+              {/* Highlights Micro-cards */}
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
@@ -274,7 +262,7 @@ export default function LandingPage() {
                 borderTop: '1px solid rgba(10, 186, 181, 0.25)',
                 paddingTop: '20px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.82)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.88)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--tiffany-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tiffany-700)', flexShrink: 0 }}>
                     <Heart size={18} />
                   </div>
@@ -284,7 +272,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.82)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.88)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--tiffany-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tiffany-700)', flexShrink: 0 }}>
                     <ShieldCheck size={18} />
                   </div>
@@ -294,7 +282,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.82)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'rgba(255,255,255,0.88)', padding: '10px 12px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                   <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--tiffany-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tiffany-700)', flexShrink: 0 }}>
                     <Syringe size={18} />
                   </div>
@@ -309,8 +297,7 @@ export default function LandingPage() {
             {/* Right Card: Perfil da Médica Veterinária com o botão de agendamento */}
             <div style={{ position: 'relative' }}>
               <div style={{
-                background: 'rgba(255, 255, 255, 0.94)',
-                backdropFilter: 'blur(10px)',
+                background: 'rgba(255, 255, 255, 0.95)',
                 borderRadius: 'var(--radius-xl)',
                 padding: '28px',
                 boxShadow: 'var(--shadow-xl)',
@@ -380,13 +367,17 @@ export default function LandingPage() {
       {/* ========================================================
           2. SOBRE A MÉDICA VETERINÁRIA
          ======================================================== */}
-      <section id="sobre" style={{
-        padding: '70px 0',
-        background: 'rgba(255, 255, 255, 0.72)',
-        backdropFilter: 'blur(3px)',
-        position: 'relative',
-        zIndex: 2
-      }}>
+      <section
+        id="sobre"
+        ref={sobreRef}
+        data-backdrop-idx="1"
+        style={{
+          padding: '70px 0',
+          background: 'rgba(255, 255, 255, 0.78)',
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
         <div className="container">
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center', marginBottom: '45px' }}>
             <span className="badge-pill badge-tiffany">Trajetória e Vocação</span>
@@ -399,7 +390,7 @@ export default function LandingPage() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-            <div className="card" style={{ padding: '28px', background: 'rgba(255, 255, 255, 0.94)' }}>
+            <div className="card" style={{ padding: '28px', background: 'rgba(255, 255, 255, 0.96)' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--tiffany-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tiffany-700)', marginBottom: '16px' }}>
                 <Heart size={22} />
               </div>
@@ -409,7 +400,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '28px', background: 'rgba(255, 255, 255, 0.94)' }}>
+            <div className="card" style={{ padding: '28px', background: 'rgba(255, 255, 255, 0.96)' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--tiffany-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tiffany-700)', marginBottom: '16px' }}>
                 <Stethoscope size={22} />
               </div>
@@ -419,7 +410,7 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="card" style={{ padding: '28px', background: 'rgba(255, 255, 255, 0.94)' }}>
+            <div className="card" style={{ padding: '28px', background: 'rgba(255, 255, 255, 0.96)' }}>
               <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--tiffany-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--tiffany-700)', marginBottom: '16px' }}>
                 <ShieldCheck size={22} />
               </div>
@@ -435,15 +426,19 @@ export default function LandingPage() {
       {/* ========================================================
           3. ATENDIMENTO ESPECIALIZADO: CÃES & GATOS
          ======================================================== */}
-      <section id="especialidades" style={{
-        padding: '70px 0',
-        background: 'rgba(248, 250, 252, 0.72)',
-        backdropFilter: 'blur(3px)',
-        borderTop: '1px solid var(--border-subtle)',
-        borderBottom: '1px solid var(--border-subtle)',
-        position: 'relative',
-        zIndex: 2
-      }}>
+      <section
+        id="especialidades"
+        ref={especialidadesRef}
+        data-backdrop-idx="2"
+        style={{
+          padding: '70px 0',
+          background: 'rgba(248, 250, 252, 0.78)',
+          borderTop: '1px solid var(--border-subtle)',
+          borderBottom: '1px solid var(--border-subtle)',
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
         <div className="container">
           <div style={{ maxWidth: '750px', margin: '0 auto', textAlign: 'center', marginBottom: '40px' }}>
             <span className="badge-pill badge-tiffany">Serviços Clínicos</span>
@@ -534,7 +529,7 @@ export default function LandingPage() {
                 <div
                   key={service.id}
                   className="card"
-                  style={{ padding: '24px', background: 'rgba(255, 255, 255, 0.95)' }}
+                  style={{ padding: '24px', background: 'rgba(255, 255, 255, 0.96)' }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <IconComponent size={26} color="var(--tiffany-600)" />
@@ -563,13 +558,17 @@ export default function LandingPage() {
       {/* ========================================================
           4. LOCALIZAÇÃO E CONTATO EM LAGES - SC
          ======================================================== */}
-      <section id="localizacao" style={{
-        padding: '70px 0',
-        background: 'rgba(255, 255, 255, 0.72)',
-        backdropFilter: 'blur(3px)',
-        position: 'relative',
-        zIndex: 2
-      }}>
+      <section
+        id="localizacao"
+        ref={localizacaoRef}
+        data-backdrop-idx="2"
+        style={{
+          padding: '70px 0',
+          background: 'rgba(255, 255, 255, 0.78)',
+          position: 'relative',
+          zIndex: 2
+        }}
+      >
         <div className="container">
           <div style={{
             background: 'linear-gradient(135deg, var(--slate-900) 0%, #0d282e 100%)',

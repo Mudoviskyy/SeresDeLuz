@@ -66,8 +66,7 @@ export default function Header({ currentView, setCurrentView, currentUser, setIs
 
       {/* Main Navigation Bar */}
       <nav style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
+        background: 'rgba(255, 255, 255, 0.97)',
         borderBottom: '1px solid var(--border-subtle)',
         boxShadow: 'var(--shadow-sm)'
       }}>
